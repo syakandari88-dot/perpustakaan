@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Informasi Perpustakaan & Absensi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1024px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin: auto;
+    }
+
+    .hidden { display: none !important; }
+
+    /* AUTH CARD */
+    .auth-card {
+      max-width: 380px;
+      margin: 40px auto;
+      padding: 32px 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+    }
+
+    .auth-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .auth-card p {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-secondary { background: #f1f5f9; color: var(--muted); }
+    .btn-secondary:hover { background: #e2e8f0; color: var(--text); }
+
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+
+    .btn-warning { background: #fef3c7; color: #92400e; }
+    .btn-warning:hover { background: #fde68a; }
+
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover { background: #fca5a5; }
+
+    .btn-full { width: 100%; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* HEADER */
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* STATS DASHBOARD */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .stat-card span { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .stat-card h4 { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--text); }
+
+    /* NAV TABS */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .tab-item {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-item:hover { background: #f1f5f9; color: var(--text); }
+    .tab-item.active { background: var(--primary-light); color: var(--primary); }
+
+    /* TABLES */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--muted);
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .bukti-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+
+    /* BADGES */
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .bg-hadir, .bg-dikembalikan { background: #d1fae5; color: #065f46; }
+    .bg-izin { background: #fef3c7; color: #92400e; }
+    .bg-sakit, .bg-dipinjam { background: #fee2e2; color: #991b1b; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    .camera-box {
+      width: 100%;
+      height: 200px;
+      background: #0f172a;
+      border-radius: 8px;
+      margin: 12px 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video, #img-preview { width: 100%; height: 100%; object-fit: cover; }
+
+    .btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+    .card-form {
+      max-width: 480px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- AUTH SECTION -->
+  <div id="auth-section" class="auth-card">
+    <h2 id="auth-title">Selamat Datang</h2>
+    <p>Silakan masuk untuk mengakses sistem</p>
+    
+    <form id="auth-form">
+      <div class="form-group">
+        <label for="username">Username / Nama Siswa</label>
+        <input type="text" id="username" placeholder="Masukkan username..." required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" id="btn-auth" class="btn btn-primary btn-full">Login</button>
+      <button type="button" id="btn-switch" class="btn btn-secondary btn-full" style="margin-top: 8px;" onclick="toggleAuthMode()">Belum punya akun? Daftar</button>
+    </form>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="app-section" class="hidden">
+    
+    <!-- HEADER -->
+    <div class="user-header">
+      <div class="user-profile">
+        <div class="avatar" id="user-avatar">U</div>
+        <div>
+          <h3 id="user-display" style="font-size: 16px; font-weight: 700;">User</h3>
+          <span style="font-size: 12px; color: var(--muted);">Siswa Terhubung</span>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- DASHBOARD STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span>Total Koleksi Buku</span>
+        <h4 id="stat-buku">0</h4>
+      </div>
+      <div class="stat-card">
+        <span>Sedang Dipinjam</span>
+        <h4 id="stat-pinjam">0</h4>
+      </div>
+      <div class="stat-card">
+        <span>Total Absensi Masuk</span>
+        <h4 id="stat-absen">0</h4>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="nav-tabs">
+      <button class="tab-item active" onclick="showTab('buku', this)">📚 Daftar Buku</button>
+      <button class="tab-item" onclick="showTab('tambah-buku', this)">➕ Tambah Buku</button>
+      <button class="tab-item" onclick="showTab('jadwal-buku', this)">📖 Riwayat Pinjam</button>
+      <button class="tab-item" onclick="showTab('riwayat-absen', this)">📋 Rekap Absensi</button>
+      <button class="tab-item" onclick="showTab('kelas', this)">🏫 Data Kelas</button>
+      <button class="tab-item" onclick="showTab('pengguna', this)">👤 Pengguna</button>
+    </div>
+
+    <!-- TAB 1: BUKU -->
+    <div id="tab-buku">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Judul Buku</th>
+              <th>Pengarang</th>
+              <th style="text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="buku-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: TAMBAH BUKU -->
+    <div id="tab-tambah-buku" class="hidden">
+      <div class="card-form">
+        <h4 style="margin-bottom: 16px;">Tambah Buku Baru</h4>
+        <form id="form-tambah-buku">
+          <div class="form-group">
+            <label for="input-judul">Judul Buku</label>
+            <input type="text" id="input-judul" placeholder="Contoh: Sang Pemimpi" required>
+          </div>
+          <div class="form-group">
+            <label for="input-pengarang">Pengarang / Penulis</label>
+            <input type="text" id="input-pengarang" placeholder="Contoh: Andrea Hirata" required>
+          </div>
+          <button type="submit" class="btn btn-success btn-full">Simpan Buku</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 3: RIWAYAT PEMINJAMAN -->
+    <div id="tab-jadwal-buku" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <span style="font-size: 13px; color: var(--muted);">Daftar buku yang dipinjam oleh siswa</span>
+        <button class="btn btn-danger btn-sm" onclick="clearDataPeminjaman()">🗑️ Reset Data</button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Bukti</th>
+              <th>Peminjam</th>
+              <th>Judul Buku</th>
+              <th>Tgl Pinjam</th>
+              <th>Batas Kembali</th>
+              <th>Status</th>
+              <th style="text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="peminjaman-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: REKAP ABSENSI -->
+    <div id="tab-riwayat-absen" class="hidden">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nama Siswa</th>
+              <th>Kelas</th>
+              <th>Status</th>
+              <th>Waktu</th>
+            </tr>
+          </thead>
+          <tbody id="absen-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 5: KELAS -->
+    <div id="tab-kelas" class="hidden">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Kelas</th>
+              <th>Wali Kelas</th>
+            </tr>
+          </thead>
+          <tbody id="kelas-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 6: PENGGUNA -->
+    <div id="tab-pengguna" class="hidden">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Username Siswa</th>
+            </tr>
+          </thead>
+          <tbody id="pengguna-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL PEMINJAMAN & ABSEN -->
+<div id="modal-pinjam-absen" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h3 style="font-size: 16px; font-weight: 700;">Pinjam Buku & Absen</h3>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 2px;">Buku: <b id="modal-buku-judul" style="color: var(--primary);"></b></p>
+    
+    <div class="form-group" style="margin-top: 12px;">
+      <label for="select-kelas">Pilih Kelas</label>
+      <select id="select-kelas">
+        <option value="X IPA 1">X IPA 1</option>
+        <option value="X IPA 2">X IPA 2</option>
+        <option value="XI IPA 1">XI IPA 1</option>
+        <option value="XII IPS 1">XII IPS 1</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="select-status">Status Kehadiran</label>
+      <select id="select-status">
+        <option value="Hadir">Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+      </select>
+    </div>
+
+    <div class="camera-box">
+      <video id="webcam" autoplay playsinline></video>
+      <img id="img-preview" class="hidden" alt="Hasil Foto">
+      <canvas id="canvas" class="hidden"></canvas>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="closeBorrowModal()">Batal</button>
+      <button id="btn-snap" class="btn btn-primary" onclick="takeSnapshot()">📷 Ambil Foto</button>
+      <button id="btn-retry" class="btn btn-secondary hidden" onclick="startCamera()">🔄 Ulangi</button>
+      <button id="btn-save" class="btn btn-success hidden" onclick="simpanPinjamDanAbsen()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const dataKelas = [
+    { id: 1, nama: "X IPA 1", wali: "Bpk. Budi Santoso" },
+    { id: 2, nama: "X IPA 2", wali: "Ibu Siti Rahma" },
+    { id: 3, nama: "XI IPA 1", wali: "Bpk. Ahmad Fauzi" },
+    { id: 4, nama: "XII IPS 1", wali: "Ibu Dewi Lestari" }
+  ];
+
+  const defaultBooks = [
+    { id: 1, judul: "Laskar Pelangi", pengarang: "Andrea Hirata" },
+    { id: 2, judul: "Bumi", pengarang: "Tere Liye" },
+    { id: 3, judul: "Filosofi Teras", pengarang: "Henry Manampiring" },
+    { id: 4, judul: "Atomic Habits", pengarang: "James Clear" }
+  ];
+
+  let isRegisterMode = false;
+  let selectedBukuJudul = "";
+  let base64Photo = "";
+  let mediaStream = null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!localStorage.getItem("users")) localStorage.setItem("users", JSON.stringify([]));
+    if (!localStorage.getItem("absensi")) localStorage.setItem("absensi", JSON.stringify([]));
+    if (!localStorage.getItem("peminjaman")) localStorage.setItem("peminjaman", JSON.stringify([]));
+    
+    if (!localStorage.getItem("buku_list")) {
+      localStorage.setItem("buku_list", JSON.stringify(defaultBooks));
+    }
+    
+    fixLegacyData();
+    checkLoginSession();
+  });
+
+  function fixLegacyData() {
+    let peminjaman = JSON.parse(localStorage.getItem("peminjaman")) || [];
+    let updated = false;
+    peminjaman = peminjaman.map((item, index) => {
+      if (!item.id) {
+        item.id = "pinjam_" + Date.now() + "_" + index;
+        updated = true;
+      }
+      return item;
+    });
+    if (updated) {
+      localStorage.setItem("peminjaman", JSON.stringify(peminjaman));
+    }
+  }
+
+  function checkLoginSession() {
+    const activeUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (activeUser) {
+      document.getElementById("auth-section").classList.add("hidden");
+      document.getElementById("app-section").classList.remove("hidden");
+      document.getElementById("user-display").innerText = activeUser.username;
+      document.getElementById("user-avatar").innerText = activeUser.username.charAt(0).toUpperCase();
+      renderAllData();
+    } else {
+      document.getElementById("auth-section").classList.remove("hidden");
+      document.getElementById("app-section").classList.add("hidden");
+    }
+  }
+
+  function toggleAuthMode() {
+    isRegisterMode = !isRegisterMode;
+    document.getElementById("auth-title").innerText = isRegisterMode ? "Daftar Akun Baru" : "Selamat Datang";
+    document.getElementById("btn-auth").innerText = isRegisterMode ? "Daftar" : "Login";
+    document.getElementById("btn-switch").innerText = isRegisterMode ? "Sudah punya akun? Login" : "Belum punya akun? Daftar";
+  }
+
+  document.getElementById("auth-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const userIn = document.getElementById("username").value.trim();
+    const passIn = document.getElementById("password").value;
+    const users = JSON.parse(localStorage.getItem("users"));
+
+    if (isRegisterMode) {
+      if (users.find(u => u.username === userIn)) {
+        alert("Username telah terdaftar!");
+        return;
+      }
+      users.push({ username: userIn, password: passIn });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Pendaftaran berhasil! Silakan login.");
+      toggleAuthMode();
+    } else {
+      const user = users.find(u => u.username === userIn && u.password === passIn);
+      if (user) {
+        localStorage.setItem("currentUser", JSON.stringify({ username: user.username }));
+        document.getElementById("auth-form").reset();
+        checkLoginSession();
+      } else {
+        alert("Username atau password salah!");
+      }
+    }
+  });
+
+  document.getElementById("form-tambah-buku").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const judul = document.getElementById("input-judul").value.trim();
+    const pengarang = document.getElementById("input-pengarang").value.trim();
+
+    const bukuList = JSON.parse(localStorage.getItem("buku_list")) || [];
+    bukuList.push({
+      id: Date.now(),
+      judul: judul,
+      pengarang: pengarang
+    });
+
+    localStorage.setItem("buku_list", JSON.stringify(bukuList));
+    alert(`Buku "${judul}" berhasil ditambahkan!`);
+    
+    document.getElementById("form-tambah-buku").reset();
+    renderAllData();
+    
+    const firstNavBtn = document.querySelector('.tab-item');
+    showTab("buku", firstNavBtn);
+  });
+
+  function logout() {
+    localStorage.removeItem("currentUser");
+    checkLoginSession();
+  }
+
+  function showTab(tabName, element) {
+    const tabs = ['buku', 'tambah-buku', 'jadwal-buku', 'riwayat-absen', 'kelas', 'pengguna'];
+    tabs.forEach(t => document.getElementById(`tab-${t}`).classList.add("hidden"));
+    
+    document.querySelectorAll('.tab-item').forEach(btn => btn.classList.remove('active'));
+    
+    document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+    if (element) element.classList.add('active');
+  }
+
+  function renderAllData() {
+    renderBuku();
+    renderPeminjaman();
+    renderAbsensi();
+    renderKelas();
+    renderPengguna();
+    updateStats();
+  }
+
+  function updateStats() {
+    const bukuList = JSON.parse(localStorage.getItem("buku_list")) || [];
+    const peminjaman = JSON.parse(localStorage.getItem("peminjaman")) || [];
+    const absensi = JSON.parse(localStorage.getItem("absensi")) || [];
+
+    const dipinjamCount = peminjaman.filter(p => !p.isReturned).length;
+
+    document.getElementById("stat-buku").innerText = bukuList.length;
+    document.getElementById("stat-pinjam").innerText = dipinjamCount;
+    document.getElementById("stat-absen").innerText = absensi.length;
+  }
+
+  async function startCamera() {
+    document.getElementById("webcam").classList.remove("hidden");
+    document.getElementById("img-preview").classList.add("hidden");
+    document.getElementById("btn-snap").classList.remove("hidden");
+    document.getElementById("btn-retry").classList.add("hidden");
+    document.getElementById("btn-save").classList.add("hidden");
+
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "user" }, 
+        audio: false 
+      });
+      document.getElementById("webcam").srcObject = mediaStream;
+    } catch (err) {
+      alert("Akses kamera ditolak.");
+      console.error(err);
+    }
+  }
+
+  function stopCamera() {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      mediaStream = null;
+    }
+  }
+
+  function takeSnapshot() {
+    const video = document.getElementById("webcam");
+    const canvas = document.getElementById("canvas");
+    const imgPreview = document.getElementById("img-preview");
+
+    canvas.width = video.videoWidth || 320;
+    canvas.height = video.videoHeight || 240;
+    
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    base64Photo = canvas.toDataURL("image/jpeg");
+    imgPreview.src = base64Photo;
+    
+    video.classList.add("hidden");
+    imgPreview.classList.remove("hidden");
+    
+    document.getElementById("btn-snap").classList.add("hidden");
+    document.getElementById("btn-retry").classList.remove("hidden");
+    document.getElementById("btn-save").classList.remove("hidden");
+
+    stopCamera();
+  }
+
+  function openBorrowModal(judul) {
+    selectedBukuJudul = judul;
+    base64Photo = "";
+    document.getElementById("modal-buku-judul").innerText = judul;
+    document.getElementById("modal-pinjam-absen").classList.remove("hidden");
+    startCamera();
+  }
+
+  function closeBorrowModal() {
+    stopCamera();
+    document.getElementById("modal-pinjam-absen").classList.add("hidden");
+  }
+
+  function simpanPinjamDanAbsen() {
+    if (!base64Photo) {
+      alert("Foto bukti belum diambil!");
+      return;
+    }
+
+    const activeUser = JSON.parse(localStorage.getItem("currentUser"));
+    const kelasVal = document.getElementById("select-kelas").value;
+    const statusVal = document.getElementById("select-status").value;
+    const waktuSekarang = new Date().toLocaleString("id-ID");
+
+    const peminjaman = JSON.parse(localStorage.getItem("peminjaman")) || [];
+    const tglPinjam = new Date();
+    const tglKembali = new Date();
+    tglKembali.setDate(tglPinjam.getDate() + 7);
+
+    peminjaman.push({
+      id: "pinjam_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+      username: activeUser.username,
+      kelas: kelasVal,
+      judul: selectedBukuJudul,
+      fotoBukti: base64Photo,
+      tglPinjam: tglPinjam.toLocaleDateString("id-ID"),
+      tglKembali: tglKembali.toLocaleDateString("id-ID"),
+      isReturned: false,
+      tglKembaliAktual: "-"
+    });
+    localStorage.setItem("peminjaman", JSON.stringify(peminjaman));
+
+    const absensi = JSON.parse(localStorage.getItem("absensi")) || [];
+    absensi.push({
+      username: activeUser.username,
+      kelas: kelasVal,
+      status: statusVal,
+      fotoBukti: base64Photo,
+      waktu: waktuSekarang
+    });
+    localStorage.setItem("absensi", JSON.stringify(absensi));
+
+    alert(`Buku "${selectedBukuJudul}" berhasil dipinjam!`);
+
+    closeBorrowModal();
+    renderAllData();
+    
+    const riwayatBtn = document.querySelectorAll('.tab-item')[2];
+    showTab('jadwal-buku', riwayatBtn);
+  }
+
+  function kembalikanBuku(idPinjam) {
+    const peminjaman = JSON.parse(localStorage.getItem("peminjaman")) || [];
+    const index = peminjaman.findIndex(p => String(p.id) === String(idPinjam));
+    
+    if (index !== -1) {
+      const item = peminjaman[index];
+      if (confirm(`Kembalikan buku "${item.judul}"?`)) {
+        peminjaman[index].isReturned = true;
+        peminjaman[index].tglKembaliAktual = new Date().toLocaleDateString("id-ID");
+        localStorage.setItem("peminjaman", JSON.stringify(peminjaman));
+        
+        alert(`Buku "${item.judul}" berhasil dikembalikan!`);
+        renderAllData();
+      }
+    } else {
+      alert("Data tidak ditemukan!");
+    }
+  }
+
+  function clearDataPeminjaman() {
+    if (confirm("Hapus seluruh data peminjaman?")) {
+      localStorage.setItem("peminjaman", JSON.stringify([]));
+      renderAllData();
+    }
+  }
+
+  function renderBuku() {
+    const bukuList = JSON.parse(localStorage.getItem("buku_list")) || [];
+    const list = document.getElementById("buku-list");
+    list.innerHTML = "";
+    
+    if (bukuList.length === 0) {
+      list.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--muted);">Belum ada koleksi buku.</td></tr>`;
+      return;
+    }
+
+    bukuList.forEach((buku, idx) => {
+      list.innerHTML += `
+        <tr>
+          <td style="color: var(--muted);">${idx + 1}</td>
+          <td><b>${buku.judul}</b></td>
+          <td>${buku.pengarang}</td>
+          <td style="text-align: right;"><button class="btn btn-primary btn-sm" onclick="openBorrowModal('${buku.judul}')">Pinjam & Absen</button></td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderPeminjaman() {
+    fixLegacyData();
+    const peminjaman = JSON.parse(localStorage.getItem("peminjaman")) || [];
+    const list = document.getElementById("peminjaman-list");
+    list.innerHTML = peminjaman.length === 0 ? `<tr><td colspan="7" style="text-align:center; color: var(--muted);">Belum ada riwayat peminjaman.</td></tr>` : "";
+
+    const dataReversed = [...peminjaman].reverse();
+
+    dataReversed.forEach(item => {
+      const statusBadge = item.isReturned 
+        ? `<span class="badge bg-dikembalikan">Sudah Kembali</span>` 
+        : `<span class="badge bg-dipinjam">Dipinjam</span>`;
+        
+      const aksiBtn = item.isReturned 
+        ? `<span style="color:var(--muted); font-size:12px;">-</span>` 
+        : `<button class="btn btn-warning btn-sm" onclick="kembalikanBuku('${item.id}')">Kembalikan</button>`;
+
+      list.innerHTML += `
+        <tr>
+          <td><img src="${item.fotoBukti}" class="bukti-img" alt="Foto"></td>
+          <td><b>${item.username}</b><br><span style="font-size:11px; color:var(--muted);">${item.kelas}</span></td>
+          <td>${item.judul}</td>
+          <td>${item.tglPinjam}</td>
+          <td>${item.tglKembali}</td>
+          <td>${statusBadge}</td>
+          <td style="text-align: right;">${aksiBtn}</td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderAbsensi() {
+    const absensi = JSON.parse(localStorage.getItem("absensi")) || [];
+    const list = document.getElementById("absen-list");
+    list.innerHTML = absensi.length === 0 ? `<tr><td colspan="5" style="text-align:center; color: var(--muted);">Belum ada data absensi.</td></tr>` : "";
+
+    absensi.slice().reverse().forEach(item => {
+      let badgeClass = item.status === "Izin" ? "bg-izin" : (item.status === "Sakit" ? "bg-sakit" : "bg-hadir");
+      list.innerHTML += `
+        <tr>
+          <td><img src="${item.fotoBukti}" class="bukti-img" alt="Foto"></td>
+          <td><b>${item.username}</b></td>
+          <td>${item.kelas}</td>
+          <td><span class="badge ${badgeClass}">${item.status}</span></td>
+          <td style="color:var(--muted); font-size:12px;">${item.waktu}</td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderKelas() {
+    const list = document.getElementById("kelas-list");
+    list.innerHTML = "";
+    dataKelas.forEach((k, idx) => {
+      list.innerHTML += `<tr><td style="color:var(--muted);">${idx + 1}</td><td><b>${k.nama}</b></td><td>${k.wali}</td></tr>`;
+    });
+  }
+
+  function renderPengguna() {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const list = document.getElementById("pengguna-list");
+    list.innerHTML = "";
+    users.forEach(u => {
+      list.innerHTML += `<tr><td><b>${u.username}</b></td></tr>`;
+    });
+  }
+</script>
+</body>
+</html>
